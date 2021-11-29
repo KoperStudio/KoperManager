@@ -3,7 +3,7 @@ Package manager for minecraft servers
 
 Install minecraft server software and plugins in 1 ~~click~~ command
 ## Setup server
-`./koper_manager setup_server <brand> <minecraft_version> <name>`tl;dr
+`./koper_manager setup_server <brand> <minecraft_version> <name>`
 Supported brands:
 + Paper (Recommended for all)
 + Spigot (Recommenced for small testings)
