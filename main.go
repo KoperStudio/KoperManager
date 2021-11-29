@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,6 +23,13 @@ const version = "1.0 GO"
 const paperEndpoint = "https://papermc.io/api/v2"
 const spigetEndpoint = "https://api.spiget.org/v2"
 const runOs = runtime.GOOS
+
+var WarningLogger *log.Logger
+
+func init(){
+	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime)
+}
+
 func main() {
 	log.Println("Using Koper version", version)
 
@@ -41,15 +49,16 @@ func main() {
 		argsLen := len(args)
 		var pluginsFolder string
 		if argsLen == 3 {
-
+			if _, err := os.Stat(args[2]); os.IsNotExist(err){
+				log.Fatalln("Invalid server folder path. Your path: ", args[2])
+				return
+			}
 			pluginsFolder = args[2] + string(os.PathSeparator) + "plugins"
-			println(pluginsFolder)
 			test := os.Mkdir(pluginsFolder, os.ModeDir)
 			if test != nil {
 				if !(os.IsExist(test) || os.IsNotExist(test)) {
 					log.Fatalln("Cannot create plugins folder", test)
 				}
-
 			}
 		} else if argsLen == 2 {
 			if _, err := os.Stat("plugins"); os.IsNotExist(err) {
@@ -266,12 +275,8 @@ func DownloadFile(url string, dest string) {
 }
 
 func DownloadFileW(url string, dest string, fallback string) {
-	file := path.Base(url)
+	_ = path.Base(url)
 	start := time.Now()
-	err := os.RemoveAll(dest)
-	if errors.Is(err, os.ErrExist) {
-		log.Println("Found old version, deleting")
-	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalln("Server respond with error", err)
@@ -294,12 +299,16 @@ func DownloadFileW(url string, dest string, fallback string) {
 	var fileName string
 	contentDispose := resp.Header.Get("Content-Disposition")
 	if contentDispose == ""{
+		contentType :=  resp.Header.Get("Content-Type")
+		if !strings.Contains(contentType, "java"){
+			log.Fatalln("Current plugin has only external source and file from external source is just a webpage. To install plugin go manually search for yours resource. Content-Type:", contentType)
+			return
+		}
 		fileName = fallback
 	} else {
 		fileName = contentDispose
 	}
 	realDest = dest + string(os.PathSeparator) + fileName
-
 	f, _ := os.OpenFile(realDest, os.O_CREATE|os.O_WRONLY, 0644)
 	defer func(f *os.File) {
 		err := f.Close()
@@ -310,7 +319,7 @@ func DownloadFileW(url string, dest string, fallback string) {
 
 	bar := progressbar.DefaultBytes(
 		resp.ContentLength,
-		"Downloading " + file,
+		"Downloading " + fallback,
 	)
 
 	_, err = io.Copy(io.MultiWriter(f, bar), resp.Body)
@@ -333,19 +342,49 @@ func DownloadPlugin(pathToPlugins string, plugin string)  {
 	body, err := ioutil.ReadAll(resp.Body)
 	var resources []interface{}
 	err = json.Unmarshal(body, &resources)
+	if err != nil {
+		log.Fatalln("Something went wring with json (Resources query)", err)
+	}
 	if len(resources) == 0 {
 		log.Fatalln("No plugins found by query:", plugin)
 		return
 	}
-	var firstResource map[string]interface{}
-	err = json.Unmarshal([]byte(fmt.Sprint(resources[0])), &firstResource)
+	var resource map[string]interface{}
+	resourceJson := interfaceToJson(resources[0])
+	err = json.Unmarshal([]byte(resourceJson), &resource)
+	if err != nil {
+		log.Fatalln("Something went wring with json (Resource map)", err)
+	}
 	var fileData map[string]interface{}
-	err = json.Unmarshal([]byte(fmt.Sprint(firstResource["file"])), &fileData)
+	err = json.Unmarshal([]byte(interfaceToJson(resource["file"])), &fileData)
+	if err != nil {
+		log.Fatalln("Something went wring with json (Resource file info)", err)
+	}
 	fileType := fmt.Sprint(fileData["type"])
 	folderPath := pathToPlugins
 	if fileType == "external" {
 		DownloadFileW(fmt.Sprint(fileData["externalUrl"]), folderPath, plugin + ".jar")
 	} else {
-		DownloadFileW("https://spigotmc.org/" + fmt.Sprint(fileData["url"]), folderPath,  plugin + ".jar")
+		resourceData := strings.Split(fmt.Sprint(fileData["url"]), "/")
+		resourceId := strings.Split(resourceData[1], ".")[1]
+		DownloadFileW(spigetEndpoint + "/resources/" + string(resourceId) + "/download", folderPath,  plugin + ".jar")
 	}
+}
+
+func createKeyValuePairs(m map[string]interface{}) string {
+	b := new(bytes.Buffer)
+	for key, value := range m {
+		fmt.Fprintf(b, "%s=\"%s\"\n", key, fmt.Sprint(value))
+	}
+	return b.String()
+}
+
+func interfaceToJson(m interface{}) string {
+	mJson, err := json.Marshal(m)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(mJson)
 }
