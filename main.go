@@ -362,13 +362,31 @@ func DownloadPlugin(pathToPlugins string, plugin string)  {
 	}
 	fileType := fmt.Sprint(fileData["type"])
 	folderPath := pathToPlugins
+	var versionData map[string]interface{}
+	err = json.Unmarshal([]byte(interfaceToJson(resource["version"])), &versionData)
+
+	var pluginName string
+	if contains(resource, "name"){
+		pluginName = fmt.Sprint(resource["name"])
+	} else {
+		pluginName = plugin
+	}
+	name := pluginName + "_" + fmt.Sprint(versionData["id"]) + ".jar"
+	if contains(resource, "donationLink") {
+		log.Println(pluginName, "developer's donation link:", fmt.Sprint(resource["donationLink"]))
+	}
 	if fileType == "external" {
-		DownloadFileW(fmt.Sprint(fileData["externalUrl"]), folderPath, plugin + ".jar")
+		DownloadFileW(fmt.Sprint(fileData["externalUrl"]), folderPath, name)
 	} else {
 		resourceData := strings.Split(fmt.Sprint(fileData["url"]), "/")
 		resourceId := strings.Split(resourceData[1], ".")[1]
-		DownloadFileW(spigetEndpoint + "/resources/" + string(resourceId) + "/download", folderPath,  plugin + ".jar")
+		DownloadFileW(spigetEndpoint + "/resources/" + string(resourceId) + "/download", folderPath,  name)
 	}
+}
+
+func contains(actualMap map[string]interface{}, key string) bool {
+	_, ok := actualMap[key]
+	return ok
 }
 
 func createKeyValuePairs(m map[string]interface{}) string {
