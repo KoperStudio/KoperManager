@@ -10,6 +10,7 @@ Supported brands:
 + Spigot (Recommenced for small testings)
 + Tuinity (Recommended for servers on 1.12.2 or 1.17 with 200+ online)
 + Airplane (Recommended for servers  1.16.5 and 1.17.1 with 200+ online)
+
 Name is standing for folder name, where your server will be installed
 ## Install a plugin for an existing server
 `./koper_manager install <query> [path_to_server]`
