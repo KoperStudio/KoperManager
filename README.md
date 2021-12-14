@@ -2,6 +2,20 @@
 Package manager for minecraft servers
 
 Install minecraft server software and plugins in 1 ~~click~~ command
+## Installation
+# For Windows (use linux pls)
++ Download code as zip file
++ Unpack it
++ Win + R and enter cmd.exe (or other another way to open command prompt)
++ Go to folder that you unpacked. Example `d:` `cd Project\KoperManager`
++ Run installation script: `install.bat`
+# For other OSes
++ `git clone https://github.com/KoperStudio/KoperManager.git`
++ `cd KoperManager`
++ `chmod +777 install.sh`
++ `./install.sh`
+
+Now you're able to use koper_manager command on windows and ./koper_manager on other OSes
 ## Setup server
 `./koper_manager setup_server <brand> <minecraft_version> <name>`
 
@@ -17,5 +31,3 @@ Name is standing for folder name, where your server will be installed
 
 That will install the first plugin on the list by query from spigotmc.org to plugins folder of \[path_to_server] server.
 If path_to_server isn't specified, then it will search plugins folder in your current dir
-## TODO
-Instead of publishing all binaries, make automatic build script which will install latest version to system binaries folder
