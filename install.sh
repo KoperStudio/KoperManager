@@ -158,20 +158,23 @@ if [ "$1" = '-generic' ]; then
 fi
 
 # OK, the script seems to have worked. Pass the value back.
-
+declare -l os
+os="$os"
 echo "$os"
 
 # End of os-type
 
 arch=$(uname -m)
-
+installer="test"
 if [ "$arch" = "x86_64" ]; then
   echo "64 bit detected"
-  $("./installer/installer_${os}_amd64")
+  installer="/installer/installer_${os}_amd64"
 elif [[ "$arch" == *"i" ]]; then
   echo "32 bit :(. Why you even trying to install server here?"
-  $("./installer/installer_${os}_386")
+  installer="/installer/installer_${os}_386"
 else
   echo "ARM detected"
-  $("./installer/installer_${os}_arm")
+  installer="/installer/installer_${os}_arm"
 fi
+$(chmod 777 "$installer")
+$(".${installer}")
