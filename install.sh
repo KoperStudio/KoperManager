@@ -165,11 +165,13 @@ echo "$os"
 
 arch=$(uname -m)
 
-if [ "$arch" = "12" ]; then
+if [ "$arch" = "x86_64" ]; then
   echo "64 bit detected"
+  $("./installer/installer_${os}_amd64")
 elif [[ "$arch" == *"i" ]]; then
   echo "32 bit :(. Why you even trying to install server here?"
-  $(./installer/installer_)
+  $("./installer/installer_${os}_386")
 else
   echo "ARM detected"
+  $("./installer/installer_${os}_arm")
 fi
