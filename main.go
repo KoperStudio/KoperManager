@@ -24,12 +24,6 @@ const paperEndpoint = "https://papermc.io/api/v2"
 const spigetEndpoint = "https://api.spiget.org/v2"
 const runOs = runtime.GOOS
 
-var WarningLogger *log.Logger
-
-func init(){
-	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime)
-}
-
 func main() {
 	log.Println("Using Koper version", version)
 
