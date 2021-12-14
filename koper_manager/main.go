@@ -108,9 +108,7 @@ eula=true
 }
 
 func downloadServer(brand string, version string, name string) {
-	if _, err := os.Stat("/" + name); errors.Is(err, os.ErrNotExist) {
-		_ = os.Mkdir(name, 0777)
-	}
+	_ = os.Mkdir(name, os.ModeAppend)
 	var fileName string
 	switch strings.ToLower(brand) {
 	case "paper":
@@ -170,15 +168,21 @@ func downloadServer(brand string, version string, name string) {
 		cmd := exec.Command("java", "-jar", buildToolsPath, "--rev", version)
 		cmd.Dir = name
 		stderr, _ := cmd.StderrPipe()
+		stdout, _ := cmd.StdoutPipe()
 		err := cmd.Start()
 		if err != nil {
 			return
 		}
 
-		scanner := bufio.NewScanner(stderr)
-		for scanner.Scan() {
-			m := scanner.Text()
+		errScanner := bufio.NewScanner(stderr)
+		outScanner := bufio.NewScanner(stdout)
+		for outScanner.Scan() {
+			m := outScanner.Text()
 			log.Println(m)
+		}
+		for errScanner.Scan() {
+			m := errScanner.Text()
+			log.Println("[stderr]", m)
 		}
 		err = cmd.Wait()
 		if err != nil {
