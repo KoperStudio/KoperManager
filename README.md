@@ -31,3 +31,5 @@ Name is standing for folder name, where your server will be installed
 
 That will install the first plugin on the list by query from spigotmc.org to plugins folder of \[path_to_server] server.
 If path_to_server isn't specified, then it will search plugins folder in your current dir
+
+For windows all commands are same but without `sudo` word
