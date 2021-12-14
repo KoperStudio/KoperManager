@@ -17,14 +17,19 @@ var failed = false
 func main(){
 	const runOs = runtime.GOOS
 	const runArch = runtime.GOARCH
-	url := "https://github.com/KoperStudio/KoperManager/releases/download/release/koper_manager_" + runOs + "_" + runArch
+	url := "https://github.com/KoperStudio/KoperManager/releases/download/release/koper_manager_"
 	var saveTo string
 
 	if runOs == "windows"{
 		usingWind = true
-		url += ".exe"
+		url += "windows_" + runArch + ".exe"
 		saveTo = "C:\\Windows\\koper_manager.exe"
+	} else if runOs == "darwin" {
+		url += "darwin_amd64"
+		log.Println("Using unix-like pathing")
+		saveTo = "/usr/local/bin/koper_manager"
 	} else {
+		url += "linux" + "_" + runArch
 		log.Println("Using unix-like pathing")
 		saveTo = "/usr/bin/koper_manager"
 	}
@@ -35,7 +40,7 @@ func main(){
 		log.Println("Successfully installed! Press 'Enter' to continue")
 	}
 
-	fmt.Scanln()
+	fmt.Scan()
 }
 
 func DownloadFile(url string, dest string) {
