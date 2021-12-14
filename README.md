@@ -3,13 +3,13 @@ Package manager for minecraft servers
 
 Install minecraft server software and plugins in 1 ~~click~~ command
 ## Installation
-# For Windows (use linux pls)
+### For Windows (use linux pls)
 + Download code as zip file
 + Unpack it
 + Win + R and enter cmd.exe (or other another way to open command prompt)
 + Go to folder that you unpacked. Example `d:` `cd Project\KoperManager`
 + Run installation script: `install.bat`
-# For other OSes
+### For other OSes
 + `git clone https://github.com/KoperStudio/KoperManager.git`
 + `cd KoperManager`
 + `chmod +777 install.sh`
