@@ -108,7 +108,7 @@ eula=true
 }
 
 func downloadServer(brand string, version string, name string) {
-	_ = os.Mkdir(name, os.ModeAppend)
+	_ := os.Mkdir(name, os.ModeAppend)
 	var fileName string
 	switch strings.ToLower(brand) {
 	case "paper":
@@ -264,7 +264,7 @@ func DownloadFile(url string, dest string) {
 
 	_, err = io.Copy(io.MultiWriter(f, bar), resp.Body)
 	if err != nil {
-		log.Fatalln("Unable to copy file,", err)
+		log.Fatalln("Unable to copy file,", err, "Maybe try to run via sudo?")
 		return
 	}
 
@@ -322,7 +322,7 @@ func DownloadFileW(url string, dest string, fallback string) {
 
 	_, err = io.Copy(io.MultiWriter(f, bar), resp.Body)
 	if err != nil {
-		log.Fatalln("Unable to copy file,", err)
+		log.Fatalln("Unable to copy file,", err, "Maybe try to run via sudo?")
 		return
 	}
 
